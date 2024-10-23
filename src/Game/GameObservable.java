@@ -72,7 +72,8 @@ public class GameObservable {
         for (BasicChick basicChick : chicks) {
             
             for (GameObject obj : objects) {
-                
+
+                //si les deux carres se touchent, on dit que il est sur un sol
                 if(basicChick.getHitbox().intersects(obj.getHitbox()) && obj.getType() != "Spawner"){
                     basicChick.is_on_floor();
                 }
