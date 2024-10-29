@@ -1,7 +1,5 @@
 package Game;
 
-public interface CObserver {
+public interface Observer {
     public void update();
-
-    
 }
