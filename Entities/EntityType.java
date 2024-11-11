@@ -1,7 +1,7 @@
 package Entities;
 
 public enum EntityType {
-    BASIC_CHICKS, SPAWNER, EXIT, PLATFORM;
+    BASIC_CHICK, SPAWNER, EXIT, PLATFORM,LAVA;
 }
 
 // Tout les types d'entité

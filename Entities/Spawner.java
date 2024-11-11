@@ -26,7 +26,7 @@ public class Spawner extends GameObject implements Runnable {
                 gameObservable.addChicks(new Chicks(posX, posY + 10));
                 this.chicksSpawn++;
                 try {
-                    Thread.sleep(750);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

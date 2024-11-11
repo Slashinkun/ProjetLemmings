@@ -1,16 +1,13 @@
 package Game;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-
 import Entities.Chicks;
 import Entities.GameObject;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.List;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
 
 public class GameView extends JComponent implements Observer {
     private GameObservable gameObservable;
@@ -34,14 +31,15 @@ public class GameView extends JComponent implements Observer {
 
     @Override
     protected void paintComponent(Graphics g) {
+        gameObservable.updateGame();
+
         super.paintComponent(g);
         g.setColor(Color.BLUE);
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(Color.GRAY);
-        g.drawString("Chicks Spawn : " + this.gameObservable.getChickSpawn(), 25, 25);
-        g.drawString("Chicks Exited : " + this.gameObservable.getChicksExit(), 25, 50);
-
-        this.gameObservable.updateGame();
+        g.drawString("Chicks released : " + this.gameObservable.getChickSpawn()+ "/" + this.gameObservable.getChicksLimitSpawn(), 25, 25);
+        g.drawString("Chicks saved : " + this.gameObservable.getChicksExit()+ "/" + this.gameObservable.getNumChickExitedForWin(), 25, 50);
+        g.drawString("Chicks out : "+ this.gameObservable.getChicks().size(),25,75);
 
         if (this.gameObservable.getWin() == true) {
             g.setColor(Color.BLACK);
@@ -52,6 +50,7 @@ public class GameView extends JComponent implements Observer {
 
         drawObjects(g, this.gameObservable.getGameObjects());
         drawChicks(g, this.gameObservable.getChicks());
+
     }
 
     // dessiner tout les objets du jeu
@@ -65,7 +64,8 @@ public class GameView extends JComponent implements Observer {
     private void drawObject(Graphics g, GameObject obj) {
         switch (obj.getObjectType()) {
             case PLATFORM:
-                g.setColor(Color.RED);
+                Color c = new Color(133, 87, 35);
+                g.setColor(c);
                 g.drawRect(obj.getPosX(), obj.getPosY(), obj.getWidth(), obj.getHeight());
                 g.fillRect(obj.getPosX(), obj.getPosY(), obj.getWidth(), obj.getHeight());
                 break;
@@ -75,12 +75,15 @@ public class GameView extends JComponent implements Observer {
             case EXIT:
                 drawPolygon(g, Color.GREEN, obj);
                 break;
+            case LAVA:
+                g.setColor(Color.red);
+                g.fillRect(obj.getPosX(), obj.getPosY(), obj.getWidth(), obj.getHeight());
             default:
         }
     }
 
     private void drawPolygon(Graphics g, Color color, GameObject obj) {
-        int[] ptsX = new int[] { obj.getPosX(), obj.getPosX() + 100, obj.getPosX() + 50 };
+        int[] ptsX = new int[] { obj.getPosX(), obj.getPosX() + 50, obj.getPosX() + 25 };
         int[] ptsY = new int[] { obj.getPosY(), obj.getPosY(), obj.getPosY() + 50 };
         g.setColor(color);
         g.drawPolygon(ptsX, ptsY, 3);
@@ -98,9 +101,9 @@ public class GameView extends JComponent implements Observer {
 
     private void drawChick(Graphics g, Chicks c) {
         switch (c.getObjectType()) {
-            case BASIC_CHICKS:
+            case BASIC_CHICK:
                 g.setColor(Color.YELLOW);
-                g.fillRect(c.getPosX(), c.getPosY(), 50, 100);
+                g.fillRect(c.getPosX(), c.getPosY(), c.getWidth(), c.getHeight());
 
         }
     }

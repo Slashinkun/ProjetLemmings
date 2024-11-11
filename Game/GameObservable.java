@@ -1,14 +1,12 @@
 package Game;
 //Observable
 
-import java.util.ArrayList;
-
-import javax.swing.text.html.HTMLDocument.Iterator;
-
-import Entities.GameObject;
 import Entities.Chicks;
 import Entities.Exit;
+import Entities.GameObject;
+import Entities.Platform;
 import Entities.Spawner;
+import java.util.ArrayList;
 
 public class GameObservable {
     // SingleTon pattern, on veut qu'un seul observable
@@ -26,12 +24,13 @@ public class GameObservable {
         this.observers = new ArrayList<>();
         this.gameObjects = new ArrayList<>();
         this.chicks = new ArrayList<>();
-        this.spawner = new Spawner(100, 100, 50, this);
+        this.spawner = new Spawner(200, 100, 50, this);
         this.spawnerThread = new Thread(spawner);
         this.exit = new Exit(1000, 520, 20, this);
+        this.win = false;
         gameObjects.add(this.spawner);
         gameObjects.add(this.exit);
-
+        updateGame();
     }
 
     public static GameObservable getInstance() {
@@ -45,6 +44,7 @@ public class GameObservable {
             spawn();
             updateChicks();
             checkCollision();
+
             notifyObservers();
         }
     }
@@ -61,6 +61,8 @@ public class GameObservable {
             }
     }
 
+   
+
     public void checkCollision() {
         if (!this.chicks.isEmpty()) {
             for (int i = 0; i < this.chicks.size(); i++) {
@@ -68,12 +70,14 @@ public class GameObservable {
                 for (GameObject object : this.gameObjects) {
                     switch (object.getObjectType()) {
                         case PLATFORM:
-                            if (chick.getPosY() == object.getPosY()) {
-                                chick.setIsOnFloor(true);
-                            } else if ((chick.getPosX() - chick.getWidth() == object.getPosX()
-                                    || chick.getPosX() == object.getPosX() - object.getWidth())) {
-                                chick.changeDirection();
-                            }
+                         
+                            
+                            chick.checkCollisionWithPlatform((Platform) object);
+                            
+                            
+                            
+                            
+
                             break;
                         case EXIT:
                             if (chick.getPosX() == object.getPosX() - object.getWidth()) {
@@ -82,6 +86,10 @@ public class GameObservable {
                                 this.chicks.remove(chick);
                             }
                             break;
+                        case LAVA:
+                            if(chick.getPosY() + chick.getHeight() == object.getPosY()){
+                                this.chicks.remove(chick);
+                            }
                         default:
                             break;
                     }
@@ -104,6 +112,15 @@ public class GameObservable {
     }
 
     // Getter
+    public int getChicksLimitSpawn(){
+        return this.spawner.getLimitSpawn();
+    }
+
+    public int getNumChickExitedForWin(){
+        return this.exit.getNumberOfChicksExitForWin();
+    }
+
+
     public int getChickSpawn() {
         return this.spawner.getChicksSpawn();
     }
@@ -131,6 +148,10 @@ public class GameObservable {
 
     public void addGameObject(GameObject obj) {
         this.gameObjects.add(obj);
+    }
+
+    public void addObersever(Observer o) {
+        this.observers.add(o);
     }
 
 }
