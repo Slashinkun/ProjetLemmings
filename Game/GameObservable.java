@@ -24,9 +24,9 @@ public class GameObservable {
         this.observers = new ArrayList<>();
         this.gameObjects = new ArrayList<>();
         this.chicks = new ArrayList<>();
-        this.spawner = new Spawner(200, 100, 50, this);
+        this.spawner = new Spawner(200, 300, 50, this);
         this.spawnerThread = new Thread(spawner);
-        this.exit = new Exit(1000, 520, 20, this);
+        this.exit = new Exit(1000, 420, 20, this);
         this.win = false;
         gameObjects.add(this.spawner);
         gameObjects.add(this.exit);
@@ -87,7 +87,8 @@ public class GameObservable {
                             }
                             break;
                         case LAVA:
-                            if(chick.getPosY() + chick.getHeight() == object.getPosY()){
+                            if(chick.getPosY() + chick.getHeight() == object.getPosY()
+                             && chick.getPosX() > object.getPosX() && chick.getPosX() < object.getPosX() + object.getWidth()){
                                 this.chicks.remove(chick);
                             }
                         default:

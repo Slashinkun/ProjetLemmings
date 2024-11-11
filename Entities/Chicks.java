@@ -90,8 +90,12 @@ public class Chicks extends GameObject {
     public void checkIsOnFloor(Platform platform) {
         if (super.posX > platform.getPosX() && super.posX < platform.getPosX() + platform.getWidth()
                 && super.posY + HEIGHT == platform.getPosY()) {
-                    calculateHeightFall(platform);
-            chooseRandomDirection();
+                    if(isDead){
+                        gameObservable.getChicks().remove(this);
+                    }else{
+                        chooseRandomDirection();
+                    }
+            
         }
     }
 
