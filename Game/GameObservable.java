@@ -58,6 +58,7 @@ public class GameObservable {
             this.spawnerThread.start();
     }
 
+    // Met à jour les poussins
     public void updateChicks() {
         if (!this.chicks.isEmpty())
             for (Chicks chick : this.chicks) {
@@ -65,6 +66,7 @@ public class GameObservable {
             }
     }
 
+    // Fonction qui va vérifier les collisions pour chaque objet
     public void checkCollision() {
         if (!this.chicks.isEmpty()) {
             for (int i = 0; i < this.chicks.size(); i++) {
@@ -76,7 +78,7 @@ public class GameObservable {
                             break;
                         case EXIT:
                             // Changer ca pour exit et c'est bon
-                            if (chick.checkIsOnFloor(object)) {
+                            if (chick.checkCollisionWithExit((Exit) object)) {
                                 this.exit.incrementChicksExit();
                                 this.win = this.exit.checkWin();
                                 this.chicks.remove(chick);

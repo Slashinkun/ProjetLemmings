@@ -45,6 +45,14 @@ public class Chicks extends GameObject {
         }
     }
 
+    public boolean checkCollisionWithExit(Exit exit) {
+        if (exit.posY >= super.posY && exit.posY <= super.posY + HEIGHT) {
+            if (super.posX >= exit.getPosX() && super.posX <= exit.getPosX() + exit.getWidth())
+                return true;
+        }
+        return false;
+    }
+
     // Fonction pour vérifier les collisions d'un poussin avec une plateforme
     public void checkCollisionWithPlatform(Platform platform) {
 

@@ -12,7 +12,7 @@ public class Gui {
         // Pour vérifier la mort avec 5 cases
         // game.addGameObject(new Platform(0, 520, 50, 600));
         // Pour vérifier les collisions,
-        // game.addGameObject(new Platform(100, 100, 100, 50));
+        game.addGameObject(new Platform(100, 100, 100, 50));
 
         // Lave
         game.addGameObject(new Lava(0, 620, 50, 1280));

@@ -16,6 +16,8 @@ public class Exit extends GameObject {
         this.numberOfChicksExitForWin = numberOfChicksExitForWin;
     }
 
+    // Fonction qui vérifie si le nombre total de poussin a dépassé le nombre de
+    // Poussin requis pour gagné
     public boolean checkWin() {
         if (this.chicksExit >= this.numberOfChicksExitForWin)
             return true;

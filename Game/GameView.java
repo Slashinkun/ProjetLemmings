@@ -51,7 +51,7 @@ public class GameView extends JComponent implements Observer {
         if (this.gameObservable.getWin() == true) {
             g.setColor(Color.BLACK);
             g.setFont(new Font("impact", Font.BOLD, 50));
-            g.drawString("You have won", 500, 300);
+            g.drawString("You win", 500, 300);
             return;
         }
 
