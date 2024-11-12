@@ -2,6 +2,8 @@ package Entities;
 
 import Game.GameObservable;
 
+//Fonction qui va vérifier les collisions pour chaque objet 
+
 public class Spawner extends GameObject implements Runnable {
     private static final int HEIGHT = 50;
     private static final int WIDTH = 100;
@@ -19,6 +21,7 @@ public class Spawner extends GameObject implements Runnable {
         this.isFinished = false;
     }
 
+    // Fonction run de Runnable
     @Override
     public void run() {
         if (this.chicksSpawn == 0) {
@@ -33,11 +36,6 @@ public class Spawner extends GameObject implements Runnable {
             }
         }
         this.isFinished = true;
-    }
-
-    // Spawn
-    public void spawnChick() {
-
     }
 
     // Getters

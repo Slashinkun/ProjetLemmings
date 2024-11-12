@@ -51,7 +51,7 @@ public abstract class GameObject {
         return this.height;
     }
 
-    public GameObservable getGame(){
-        return this.gameObservable;
+    public GameObservable getGame() {
+        return gameObservable;
     }
 }

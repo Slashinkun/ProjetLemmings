@@ -8,13 +8,16 @@ import Entities.Platform;
 import Entities.Spawner;
 import java.util.ArrayList;
 
+//On utilise le singleton pattern ici en même temps que Observer/Observable pattern vu qu'on veut qu'un seul GameObservable
 public class GameObservable {
-    // SingleTon pattern, on veut qu'un seul observable
     private static GameObservable instance;
 
+    // Liste d'observer
     private ArrayList<Observer> observers;
     private ArrayList<GameObject> gameObjects;
     private ArrayList<Chicks> chicks;
+    // Le spawner est un runnable vu qu'on veut qu'il spawn un poussin tout les 3
+    // secondes sans que ça arrete le programme
     private Spawner spawner;
     private Thread spawnerThread;
     private Exit exit;
@@ -24,15 +27,16 @@ public class GameObservable {
         this.observers = new ArrayList<>();
         this.gameObjects = new ArrayList<>();
         this.chicks = new ArrayList<>();
-        this.spawner = new Spawner(200, 300, 50, this);
+        this.spawner = new Spawner(200, 50, 50, this);
         this.spawnerThread = new Thread(spawner);
-        this.exit = new Exit(1000, 420, 20, this);
+        this.exit = new Exit(1200, 470, 20, this);
         this.win = false;
         gameObjects.add(this.spawner);
         gameObjects.add(this.exit);
         updateGame();
     }
 
+    // Fonction getInstances (SingleTon Pattern)
     public static GameObservable getInstance() {
         if (instance == null)
             instance = new GameObservable();
@@ -44,12 +48,12 @@ public class GameObservable {
             spawn();
             updateChicks();
             checkCollision();
-
             notifyObservers();
         }
     }
 
     public void spawn() {
+        // On démarre le SpawnerThread si il est pas lancer
         if (!spawnerThread.isAlive() && !this.spawner.getFinished())
             this.spawnerThread.start();
     }
@@ -61,8 +65,6 @@ public class GameObservable {
             }
     }
 
-   
-
     public void checkCollision() {
         if (!this.chicks.isEmpty()) {
             for (int i = 0; i < this.chicks.size(); i++) {
@@ -70,27 +72,21 @@ public class GameObservable {
                 for (GameObject object : this.gameObjects) {
                     switch (object.getObjectType()) {
                         case PLATFORM:
-                         
-                            
                             chick.checkCollisionWithPlatform((Platform) object);
-                            
-                            
-                            
-                            
-
                             break;
                         case EXIT:
-                            if (chick.getPosX() == object.getPosX() - object.getWidth()) {
+                            // Changer ca pour exit et c'est bon
+                            if (chick.checkIsOnFloor(object)) {
                                 this.exit.incrementChicksExit();
                                 this.win = this.exit.checkWin();
                                 this.chicks.remove(chick);
                             }
                             break;
                         case LAVA:
-                            if(chick.getPosY() + chick.getHeight() == object.getPosY()
-                             && chick.getPosX() > object.getPosX() && chick.getPosX() < object.getPosX() + object.getWidth()){
+                            if (chick.checkIsOnFloor(object)) {
                                 this.chicks.remove(chick);
                             }
+                            break;
                         default:
                             break;
                     }
@@ -113,14 +109,13 @@ public class GameObservable {
     }
 
     // Getter
-    public int getChicksLimitSpawn(){
+    public int getChicksLimitSpawn() {
         return this.spawner.getLimitSpawn();
     }
 
-    public int getNumChickExitedForWin(){
+    public int getNumChickExitedForWin() {
         return this.exit.getNumberOfChicksExitForWin();
     }
-
 
     public int getChickSpawn() {
         return this.spawner.getChicksSpawn();
@@ -130,12 +125,16 @@ public class GameObservable {
         return this.exit.getChicksExit();
     }
 
-    public ArrayList<GameObject> getGameObjects() {
-        return this.gameObjects;
-    }
-
     public ArrayList<Chicks> getChicks() {
         return this.chicks;
+    }
+
+    public int getNumberOfChicks() {
+        return this.chicks.size();
+    }
+
+    public ArrayList<GameObject> getGameObjects() {
+        return this.gameObjects;
     }
 
     public boolean getWin() {
@@ -145,6 +144,10 @@ public class GameObservable {
     // Setter
     public void addChicks(Chicks c) {
         this.chicks.add(c);
+    }
+
+    public void removeChicks(Chicks c) {
+        this.chicks.remove(c);
     }
 
     public void addGameObject(GameObject obj) {
