@@ -6,6 +6,7 @@ import Entities.Exit;
 import Entities.GameObject;
 import Entities.Platform;
 import Entities.Spawner;
+import Entities.StateName;
 import java.util.ArrayList;
 
 //On utilise le singleton pattern ici en même temps que Observer/Observable pattern vu qu'on veut qu'un seul GameObservable
@@ -22,6 +23,9 @@ public class GameObservable {
     private Thread spawnerThread;
     private Exit exit;
     private boolean win;
+
+    private StateName[] jobs = {StateName.RED,StateName.BLACK};
+    private int currentJobs = 0;
 
     private GameObservable() {
         this.observers = new ArrayList<>();
@@ -58,7 +62,6 @@ public class GameObservable {
             this.spawnerThread.start();
     }
 
-    // Met à jour les poussins
     public void updateChicks() {
         if (!this.chicks.isEmpty())
             for (Chicks chick : this.chicks) {
@@ -66,7 +69,6 @@ public class GameObservable {
             }
     }
 
-    // Fonction qui va vérifier les collisions pour chaque objet
     public void checkCollision() {
         if (!this.chicks.isEmpty()) {
             for (int i = 0; i < this.chicks.size(); i++) {
@@ -78,7 +80,7 @@ public class GameObservable {
                             break;
                         case EXIT:
                             // Changer ca pour exit et c'est bon
-                            if (chick.checkCollisionWithExit((Exit) object)) {
+                            if (chick.checkIsOnFloor(object)) {
                                 this.exit.incrementChicksExit();
                                 this.win = this.exit.checkWin();
                                 this.chicks.remove(chick);
@@ -153,11 +155,71 @@ public class GameObservable {
     }
 
     public void addGameObject(GameObject obj) {
-        this.gameObjects.add(obj);
+        gameObjects.add(obj);
+    }
+
+    //pour debug pour afficher tout les obstacles et leurs positions
+    public void seeGameObjects(){
+        for (GameObject obj : gameObjects) {
+            System.out.println(obj.getObjectType() + "(" + obj.getPosX() + ","+ obj.getPosY()+')') ;
+        }
     }
 
     public void addObersever(Observer o) {
         this.observers.add(o);
     }
+
+    //pour avoir le poussin où le joueur a cliqué
+    public Chicks getChickAt(int posX,int posY){
+        for (Chicks chick : chicks) {
+            if( posX > chick.getPosX() && posX < chick.getPosX() + chick.getWidth() 
+            && posY > chick.getPosY() && posY < chick.getPosY() + chick.getHeight()){
+                return chick;
+            }
+        }
+        return null;
+    }
+
+
+    //pour changer le type d'etat choisi par le joueur avec les fleches
+    public void changeWheel(int value){
+
+        if(this.currentJobs == 0 && value == -1){
+            this.currentJobs = jobs.length-1;
+            
+        }else if(this.currentJobs == jobs.length-1 && value == 1){
+            this.currentJobs = 0;
+        }else{
+            this.currentJobs += value;
+        }
+
+        System.out.println(jobs[currentJobs]);
+        
+    }
+
+    //pour avoir l'etat choisi par le joueur
+    public StateName getCurrentJob(){
+        return jobs[currentJobs];
+    }
+
+    
+    //pour avoir l'index de l'etat  choisi par le joueur
+    public int getCurrentJobIndex(){
+        return this.currentJobs;
+    }
+
+    
+    //pour avoir le nombre de metier disponible
+    public int getNbJobs(){
+        return  this.jobs.length;
+    }
+
+
+    //pour avoir la liste des etats disponible dans le niveau/jeu
+    public StateName[] getJobsList(){
+        return this.jobs;
+    }
+
+    
 
 }

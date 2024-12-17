@@ -1,6 +1,6 @@
 package Entities;
 
-import Game.GameObservable;
+
 
 public class Platform extends GameObject {
 

@@ -7,6 +7,8 @@ public class Chicks extends GameObject {
     private static final int WIDTH = 50;
     private static final int HEIGHT = 100;
     private static final int GRAVITY = 1;
+    private ChicksState state = new NormalState(this);
+    //private boolean isRed = false;
     // Direction du poussin, peut etre GAUCHE, DROITE, MONTE et TOMBE
     private Direction direction;
     // Direction de base du poussin, peut etre seulement DROITE et GAUCHE
@@ -21,18 +23,18 @@ public class Chicks extends GameObject {
 
         // On choisie baseDirection au hasard entre GAUCHE et DROITE au début
         Random rand = new Random();
-        int randomNum = rand.nextInt(2) + 1;
-        if (randomNum == 2)
-            this.baseDirection = Direction.DROITE;
-        else
+        //int randomNum = rand.nextInt(2) + 1;
+        //if (randomNum == 2)
             this.baseDirection = Direction.GAUCHE;
+        //else
+            //this.baseDirection = Direction.GAUCHE;
 
         this.chute = 0;
     }
 
     // Fonction pour bouger le poussin selon sa direction
     public void move() {
-        if (this.direction == Direction.DESCEND) {
+        /*if (this.direction == Direction.DESCEND) {
             super.posY += GRAVITY;
             chute += GRAVITY;
 
@@ -42,7 +44,8 @@ public class Chicks extends GameObject {
             } else if (this.direction == Direction.GAUCHE) {
                 super.posX -= 1;
             }
-        }
+        }*/
+        state.move();
     }
 
     public boolean checkCollisionWithExit(Exit exit) {
@@ -117,15 +120,42 @@ public class Chicks extends GameObject {
         }
     }
 
+    public void setDirection(Direction dir){
+        this.direction = dir;
+    }
+
     // Getters
     public Direction getDirection() {
         return this.direction;
     }
 
+    public void addChute(int value){
+        this.chute+=value;
+    }
+
+
+    //pour changer l'etat(metier) du poussin
+    public void changeState(StateName state){
+        
+        if(this.state.getStateName() != state){ //on peut pas changer l'etat si c'est deja l'etat actuel 
+            switch(state){
+                case RED:
+                    this.state = new RedState(this);
+                    break;
+                case BLACK:
+                    this.state = new BlackState(this);
+                    break;
+                
+            }
+        }
+        
+        
+        
+    }
+
+    public StateName getState(){
+        return this.state.getStateName();
+    }
+
 }
 
-// On utilisera le Direction.MONTE quand on passera à l'étape 2 et que monter
-// deviendra plus complexe
-enum Direction {
-    DROITE, GAUCHE, DESCEND, MONTE;
-}

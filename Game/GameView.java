@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 public class GameView extends JComponent implements Observer {
     private GameObservable gameObservable;
     private JFrame frame;
+    private final int FRAME_PER_SEC = 20;
 
     public GameView() {
         this.gameObservable = GameObservable.getInstance();
@@ -22,6 +23,9 @@ public class GameView extends JComponent implements Observer {
         this.frame.setResizable(false);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.frame.setVisible(true);
+        this.frame.addMouseListener(new ScreenListener(gameObservable));
+        this.frame.addKeyListener(new JobsListener(gameObservable));
+        frame.setTitle("Chicks");
     }
 
     @Override
@@ -31,6 +35,11 @@ public class GameView extends JComponent implements Observer {
 
     @Override
     protected void paintComponent(Graphics g) {
+
+        try {
+            Thread.sleep(100/FRAME_PER_SEC);
+        } catch (InterruptedException ex) {
+        }
         // On met à jour le gameObservable
         gameObservable.updateGame();
 
@@ -47,11 +56,13 @@ public class GameView extends JComponent implements Observer {
         // Nombre de poussin qui sont en vie dehord
         g.drawString("Chicks out : " + this.gameObservable.getNumberOfChicks(), 25, 75);
 
+        drawJobsWheel(g);
+
         // S'il a gagné
         if (this.gameObservable.getWin() == true) {
             g.setColor(Color.BLACK);
             g.setFont(new Font("impact", Font.BOLD, 50));
-            g.drawString("You win", 500, 300);
+            g.drawString("You have won", 500, 300);
             return;
         }
 
@@ -73,6 +84,8 @@ public class GameView extends JComponent implements Observer {
             case PLATFORM:
                 Color color = new Color(160, 82, 45);
                 drawRectangle(g, color, obj);
+                g.setColor(color.pink);
+                g.drawRect(obj.getPosX(), obj.getPosY(), obj.getWidth(), obj.getHeight());
                 break;
             case SPAWNER:
                 drawPolygon(g, Color.WHITE, obj);
@@ -114,8 +127,28 @@ public class GameView extends JComponent implements Observer {
 
     // Dessine un poussin
     private void drawChick(Graphics g, Chicks c) {
-        g.setColor(Color.YELLOW);
+        g.setColor(c.getState().getStateColor());
         g.fillRect(c.getPosX(), c.getPosY(), c.getWidth(), c.getHeight());
+    }
+
+    // dessine l'interface pour choisir le metier du poussin (le truc milleu à a gauche)
+    private void drawJobsWheel(Graphics g){
+
+        
+        for(int i = 0; i < gameObservable.getNbJobs() ;i++){
+            g.setColor(Color.gray);
+            g.drawRect(0, 100*(i+1), 100,100); 
+            g.setColor(Color.white);
+            g.drawString(gameObservable.getJobsList()[i].toString(), 10, 130*(i+1));
+            g.setColor(gameObservable.getJobsList()[i].getStateColor());
+            g.fillRect(50,130*(i+1), 25, 25);
+        }
+
+
+        g.setColor(Color.green);
+        
+        g.drawRect(0, 100 * (gameObservable.getCurrentJobIndex()+1), 100, 100);
+        
     }
 
 }
