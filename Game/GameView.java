@@ -2,6 +2,8 @@ package Game;
 
 import Entities.Chicks;
 import Entities.GameObject;
+import Entities.ChicksState.StateName;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -37,7 +39,7 @@ public class GameView extends JComponent implements Observer {
     protected void paintComponent(Graphics g) {
 
         try {
-            Thread.sleep(100/FRAME_PER_SEC);
+            Thread.sleep(100 / FRAME_PER_SEC);
         } catch (InterruptedException ex) {
         }
         // On met à jour le gameObservable
@@ -127,28 +129,37 @@ public class GameView extends JComponent implements Observer {
 
     // Dessine un poussin
     private void drawChick(Graphics g, Chicks c) {
-        g.setColor(c.getState().getStateColor());
+        g.setColor(getColorOnState(c.getState()));
         g.fillRect(c.getPosX(), c.getPosY(), c.getWidth(), c.getHeight());
     }
 
-    // dessine l'interface pour choisir le metier du poussin (le truc milleu à a gauche)
-    private void drawJobsWheel(Graphics g){
+    // dessine l'interface pour choisir le metier du poussin (le truc milleu à a
+    // gauche)
+    private void drawJobsWheel(Graphics g) {
 
-        
-        for(int i = 0; i < gameObservable.getNbJobs() ;i++){
+        for (int i = 0; i < gameObservable.getNbJobs(); i++) {
             g.setColor(Color.gray);
-            g.drawRect(0, 100*(i+1), 100,100); 
+            g.drawRect(0, 100 * (i + 1), 100, 100);
             g.setColor(Color.white);
-            g.drawString(gameObservable.getJobsList()[i].toString(), 10, 130*(i+1));
-            g.setColor(gameObservable.getJobsList()[i].getStateColor());
-            g.fillRect(50,130*(i+1), 25, 25);
+            g.drawString(gameObservable.getJobsList()[i].toString(), 10, 130 * (i + 1));
+            g.setColor(getColorOnState(gameObservable.getJobsList()[i]));
+            g.fillRect(50, 130 * (i + 1), 25, 25);
         }
 
-
         g.setColor(Color.green);
-        
-        g.drawRect(0, 100 * (gameObservable.getCurrentJobIndex()+1), 100, 100);
-        
+
+        g.drawRect(0, 100 * (gameObservable.getCurrentJobIndex() + 1), 100, 100);
+    }
+
+    private static Color getColorOnState(StateName state) {
+        switch (state) {
+            case RED:
+                return Color.RED;
+            case BLACK:
+                return Color.BLACK;
+            default:
+                return Color.YELLOW;
+        }
     }
 
 }

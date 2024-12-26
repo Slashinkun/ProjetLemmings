@@ -54,4 +54,14 @@ public abstract class GameObject {
     public GameObservable getGame() {
         return gameObservable;
     }
+
+    // Setters
+
+    public void setPosX(int x) {
+        this.posX = x;
+    }
+
+    public void setPosY(int y) {
+        this.posY = y;
+    }
 }
