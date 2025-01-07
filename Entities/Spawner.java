@@ -1,5 +1,6 @@
 package Entities;
 
+import Entities.ChicksState.Chicks;
 import Game.GameObservable;
 
 //Fonction qui va vérifier les collisions pour chaque objet 

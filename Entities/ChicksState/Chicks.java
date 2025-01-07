@@ -1,13 +1,11 @@
-package Entities;
+package Entities.ChicksState;
 
-import java.awt.Taskbar.State;
 import java.util.Random;
 
-import Entities.ChicksState.BlackState;
-import Entities.ChicksState.ChicksState;
-import Entities.ChicksState.NormalState;
-import Entities.ChicksState.RedState;
-import Entities.ChicksState.StateName;
+import Entities.Direction;
+import Entities.EntityType;
+import Entities.GameObject;
+import Entities.Obstacle.Obstacles;
 
 //Chacun des roles des poussins hériteront de cette classe
 public class Chicks extends GameObject {
@@ -20,11 +18,10 @@ public class Chicks extends GameObject {
     // int qui stocke de combien il est entrain de tombé, si le poussin tombe de
     // plus 250(5 cases), on le tue, sinon on remet à 0
     private int chute;
-
-    private Platform lasPlatform;
+    private Obstacles lastObstacles;
 
     private ChicksState state = new NormalState(this);
-    private StateName stateName = StateName.NORMAL;
+    private ChickStateName stateName = ChickStateName.NORMAL;
 
     public Chicks(int posX, int posY) {
         super(posX, posY, HEIGHT, WIDTH, EntityType.CHICK);
@@ -46,67 +43,70 @@ public class Chicks extends GameObject {
         state.move();
     }
 
-    public boolean checkCollisionWithExit(Exit exit) {
-        if (exit.posY >= super.posY && exit.posY <= super.posY + HEIGHT) {
-            if (super.posX >= exit.getPosX() && super.posX <= exit.getPosX() + exit.getWidth())
-                return true;
-        }
-        return false;
-    }
-
     // Fonction pour vérifier les collisions d'un poussin avec une plateforme
-    public void checkCollisionWithPlatform(Platform platform) {
+    public void checkCollisionWithObstalces(Obstacles obstacles) {
         // On vérifie si le poussin a touché la plateforme si ca direction est DESCEND
         if (this.direction == Direction.DESCEND)
-            checkIsOnFloor(platform);
+            checkIsOnFloor(obstacles);
 
-        jumpCollisions(platform);
-        sideCollisions(platform);
-        downCollisions(platform);
+        jumpCollisions(obstacles);
+        sideCollisions(obstacles);
+        downCollisions(obstacles);
 
-        if (lasPlatform != null && checkIsOnFloor(lasPlatform))
+        if (lastObstacles != null && checkIsOnFloor(lastObstacles)) {
             this.direction = this.baseDirection;
+        }
 
-        this.lasPlatform = platform;
+        this.lastObstacles = obstacles;
     }
 
     // Fonction pour sauter
-    public void jumpCollisions(Platform platform) {
+    public void jumpCollisions(Obstacles obstacles) {
         // Si le poussin et la plateforme sont dans la même position et que la
         // plateforme est égale ou inférieur à 50(une case) en hauteur, on fait monter
         // le poussin
-        if (platform.getHeight() <= 50 && super.posY + HEIGHT == platform.getPosY() + platform.getHeight()) {
-            if ((this.direction == Direction.DROITE && super.posX + WIDTH == platform.getPosX())
-                    || (this.direction == Direction.GAUCHE && super.posX == platform.getPosX() + platform.getWidth())) {
+        if (this.stateName == ChickStateName.TUNNELIER && obstacles.getIsDestructible())
+            return;
+
+        if (obstacles.getHeight() <= 50 && super.posY + HEIGHT == obstacles.getPosY() + obstacles.getHeight()) {
+            if ((this.direction == Direction.DROITE && super.posX + WIDTH == obstacles.getPosX())
+                    || (this.direction == Direction.GAUCHE
+                            && super.posX == obstacles.getPosX() + obstacles.getWidth())) {
                 this.posY -= 50;
             }
         }
     }
 
     // Fonction pour vérifier les collisions avec les côtés
-    public void sideCollisions(Platform platform) {
+    public void sideCollisions(Obstacles obstacles) {
+        if (this.stateName == ChickStateName.TUNNELIER && obstacles.getIsDestructible())
+            return;
+
         // Pour les collisions avec des murs, on change juste la direction en appelant
         // changeDirection
-        if (super.posY == platform.getPosY()) {
+        if (super.posY == obstacles.getPosY() || super.posY == obstacles.getPosY() + 50
+                || super.posY == obstacles.getPosY() - 50) {
             // Vérification de la position pour X
-            if ((this.direction == Direction.DROITE && super.posX + WIDTH == platform.getPosX())
-                    || (this.direction == Direction.GAUCHE && super.posX == platform.getPosX() + platform.getWidth())) {
+            if ((this.direction == Direction.DROITE && super.posX + WIDTH == obstacles.getPosX())
+                    || (this.direction == Direction.GAUCHE
+                            && super.posX == obstacles.getPosX() + obstacles.getWidth())) {
                 changeDirection();
-                System.out.println("Passe ici Collission");
+
             }
         }
     }
 
-    public void downCollisions(Platform platform) {
-        // Pour faire descendre le poussin quand il a atteint un bout de la plateforme
-        if (super.posY + HEIGHT == platform.getPosY()) {
-            if (this.direction == Direction.DROITE && super.posX - WIDTH == platform.getPosX() + 1) {
+    // Pour faire descendre le poussin quand il a atteint un bout de la plateforme
+    public void downCollisions(Obstacles obstacles) {
+        if (super.posY + HEIGHT == obstacles.getPosY()) {
+            if (this.direction == Direction.DROITE && super.posX - WIDTH == obstacles.getPosX()) {
                 this.direction = Direction.DESCEND;
             }
-            if (this.direction == Direction.GAUCHE && super.posX + WIDTH == platform.getPosX() - 1) {
+            if (this.direction == Direction.GAUCHE && super.posX + WIDTH == obstacles.getPosX()) {
                 this.direction = Direction.DESCEND;
             }
         }
+
     }
 
     // Fonction pour vérifier si le poussin a touché une plateforme par le haut et
@@ -116,11 +116,27 @@ public class Chicks extends GameObject {
     public boolean checkIsOnFloor(GameObject o) {
         if ((super.posX + WIDTH > o.getPosX() && super.posX < o.getPosX() + o.getWidth())
                 && super.posY + HEIGHT == o.getPosY()) {
-            if (this.chute >= 250 && o.getClass() != Exit.class) {
+            if (this.chute >= 250 && o.getObjectType() != EntityType.EXIT) {
                 gameObservable.removeChicks(this);
             } else {
                 this.chute = 0;
                 this.direction = this.baseDirection;
+                if (this.stateName == ChickStateName.FLOATER) {
+                    changeState(ChickStateName.NORMAL);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isColliding(GameObject o) {
+        if (super.posY == o.getPosY() || super.posY == o.getPosY() + 50
+                || super.posY == o.getPosY() - 50) {
+            // Vérification de la position pour X
+            if ((this.direction == Direction.DROITE && super.posX + WIDTH == o.getPosX())
+                    || (this.direction == Direction.GAUCHE
+                            && super.posX == o.getPosX() + o.getWidth())) {
                 return true;
             }
         }
@@ -139,19 +155,29 @@ public class Chicks extends GameObject {
     }
 
     // pour changer l'etat(metier) du poussin
-    public void changeState(StateName stateName) {
-
+    public void changeState(ChickStateName stateName) {
         if (this.stateName != stateName) { // on peut pas changer l'etat si c'est deja l'etat actuel
             switch (stateName) {
-                case RED:
-                    this.state = new RedState(this);
-                    this.stateName = StateName.RED;
+                case FOREUR:
+                    this.state = new ForeurState(this);
+                    this.stateName = ChickStateName.FOREUR;
                     break;
-                case BLACK:
-                    this.state = new BlackState(this);
-                    this.stateName = StateName.BLACK;
+                case TUNNELIER:
+                    this.state = new TunnelierState(this);
+                    this.stateName = ChickStateName.TUNNELIER;
                     break;
-
+                case BLOCKER:
+                    this.state = new BlockerState(this);
+                    this.stateName = ChickStateName.BLOCKER;
+                    break;
+                case FLOATER:
+                    this.state = new FloaterState(this);
+                    this.stateName = ChickStateName.FLOATER;
+                    break;
+                case NORMAL:
+                    this.state = new NormalState(this);
+                    this.stateName = ChickStateName.NORMAL;
+                    break;
             }
         }
     }
@@ -173,7 +199,7 @@ public class Chicks extends GameObject {
         return this.direction.getY();
     }
 
-    public StateName getState() {
+    public ChickStateName getState() {
         return this.stateName;
     }
 

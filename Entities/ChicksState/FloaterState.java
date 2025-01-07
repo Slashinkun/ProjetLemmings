@@ -1,10 +1,8 @@
 package Entities.ChicksState;
 
-import Entities.Direction;
+public class FloaterState extends ChicksState {
 
-public class NormalState extends ChicksState {
-
-    public NormalState(Chicks chick) {
+    public FloaterState(Chicks chick) {
         super(chick);
     }
 
@@ -13,8 +11,6 @@ public class NormalState extends ChicksState {
         this.chick.setPosX(chick.getPosX() + chick.getDirectionX());
         this.chick.setPosY(chick.getPosY() + chick.getDirectionY());
 
-        if (chick.getDirection() == Direction.DESCEND) {
-            chick.addChute(1);
-        }
     }
+
 }

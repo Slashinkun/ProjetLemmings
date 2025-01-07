@@ -1,4 +1,7 @@
-package Entities;
+package Entities.Obstacle;
+
+import Entities.EntityType;
+import Entities.GameObject;
 
 public class Lava extends GameObject {
 

@@ -1,8 +1,9 @@
 package Game;
 
-import Entities.Chicks;
 import Entities.GameObject;
-import Entities.ChicksState.StateName;
+import Entities.ChicksState.ChickStateName;
+import Entities.ChicksState.Chicks;
+import Entities.Obstacle.Obstacles;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -71,6 +72,9 @@ public class GameView extends JComponent implements Observer {
         drawObjects(g, this.gameObservable.getGameObjects());
         drawChicks(g, this.gameObservable.getChicks());
 
+        g.setColor(Color.RED);
+        g.drawString(gameObservable.getCurrentJob().toString(), 25, 100);
+
     }
 
     // dessiner tout les objets du jeu
@@ -83,10 +87,9 @@ public class GameView extends JComponent implements Observer {
     // pour dessiner un objet du jeu
     private void drawObject(Graphics g, GameObject obj) {
         switch (obj.getObjectType()) {
-            case PLATFORM:
-                Color color = new Color(160, 82, 45);
-                drawRectangle(g, color, obj);
-                g.setColor(color.pink);
+            case OBSTACLE:
+                drawObstacle(g, (Obstacles) obj);
+                g.setColor(Color.WHITE);
                 g.drawRect(obj.getPosX(), obj.getPosY(), obj.getWidth(), obj.getHeight());
                 break;
             case SPAWNER:
@@ -101,6 +104,23 @@ public class GameView extends JComponent implements Observer {
             default:
                 break;
         }
+    }
+
+    // Pour les obstacles
+    private void drawObstacle(Graphics g, Obstacles obj) {
+        Color color;
+        switch (obj.getObstacleType()) {
+            case INDESTRUCTIBLE:
+                color = Color.BLACK;
+                break;
+            case SPAWN:
+                color = Color.GREEN;
+                break;
+            default:
+                color = new Color(160, 82, 45);
+                break;
+        }
+        drawRectangle(g, color, obj);
     }
 
     // Pour la plateforme, la lave et aussi les futures obstacles
@@ -138,25 +158,23 @@ public class GameView extends JComponent implements Observer {
     private void drawJobsWheel(Graphics g) {
 
         for (int i = 0; i < gameObservable.getNbJobs(); i++) {
-            g.setColor(Color.gray);
-            g.drawRect(0, 100 * (i + 1), 100, 100);
             g.setColor(Color.white);
-            g.drawString(gameObservable.getJobsList()[i].toString(), 10, 130 * (i + 1));
+            g.drawString(gameObservable.getJobsList()[i].toString(), 450 + (i * 100), 50);
             g.setColor(getColorOnState(gameObservable.getJobsList()[i]));
-            g.fillRect(50, 130 * (i + 1), 25, 25);
+            g.fillRect(450 + (i * 100), 60, 25, 25);
         }
-
-        g.setColor(Color.green);
-
-        g.drawRect(0, 100 * (gameObservable.getCurrentJobIndex() + 1), 100, 100);
     }
 
-    private static Color getColorOnState(StateName state) {
+    private static Color getColorOnState(ChickStateName state) {
         switch (state) {
-            case RED:
-                return Color.RED;
-            case BLACK:
+            case FOREUR:
                 return Color.BLACK;
+            case TUNNELIER:
+                return Color.PINK;
+            case BLOCKER:
+                return Color.RED;
+            case FLOATER:
+                return Color.WHITE;
             default:
                 return Color.YELLOW;
         }
